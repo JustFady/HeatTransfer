@@ -49,7 +49,7 @@ After GitHub Pages finishes, the app will be available as a public website.
 
 - Runs on any modern browser
 - Validates temperature and time input
-- Provides Start, Pause/Resume, Stop, Reset, and CSV export controls
+- Provides Start, Pause/Resume, Reset, and CSV export controls
 - Animates the ball entering the water and heating over time
 - Shows second-by-second calculated temperatures and delta to the water bath
 - Plots a temperature curve with a 100 C water reference line
@@ -72,10 +72,9 @@ After GitHub Pages finishes, the app will be available as a public website.
    - Maximum: `180`
 3. Click **Start** to begin a new experimental trial.
 4. Use **Pause** and **Resume** to temporarily freeze and continue the same trial.
-5. Use **Stop** to halt the current trial while preserving the displayed frame and data.
-6. Use **Reset** only when you want to clear the run, clear the table, and return to the release position.
-7. Watch the ball motion, thermal field, temperature curve, and result table.
-8. Click **Download CSV** if you want the results in Excel or another spreadsheet tool.
+5. Use **Reset** only when you want to clear the run, clear the table, and return to the release position.
+6. Watch the ball motion, thermal field, temperature curve, and result table.
+7. Click **Download CSV** if you want the results in Excel or another spreadsheet tool.
 
 ## Windows Desktop App
 

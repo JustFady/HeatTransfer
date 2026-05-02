@@ -35,7 +35,6 @@
     form: document.getElementById("simulation-form"),
     startButton: document.getElementById("start-button"),
     pauseButton: document.getElementById("pause-button"),
-    stopButton: document.getElementById("stop-button"),
     resetButton: document.getElementById("reset-button"),
     downloadButton: document.getElementById("download-button"),
     temperatureInput: document.getElementById("temperature"),
@@ -528,7 +527,7 @@
     }
 
     if (state.status === "running") {
-      ui.message.textContent = "Simulation is already running. Use Pause or Stop first.";
+      ui.message.textContent = "Simulation is already running. Use Pause first, or Reset to clear it.";
       return;
     }
 
@@ -576,17 +575,6 @@
     }
 
     updateControlState();
-  }
-
-  function stopSimulation() {
-    if (state.status === "running" || state.status === "paused") {
-      stopTimer();
-      state.activeIndex = Math.max(0, state.activeIndex - 1);
-      state.status = "stopped";
-      ui.message.textContent = "Simulation stopped. Current trial data is preserved. Press Start for a new trial or Reset to clear.";
-      ui.runStatus.textContent = "Stopped";
-      updateControlState();
-    }
   }
 
   function stopTimer() {
@@ -651,11 +639,7 @@
 
   function handleInputChange() {
     if (state.status === "running" || state.status === "paused") {
-      stopSimulation();
-    }
-
-    if (state.status === "stopped" || state.status === "complete") {
-      ui.message.textContent = "Inputs changed. Preview reset with nominal parameters.";
+      stopTimer();
     }
 
     state.status = "ready";
@@ -669,10 +653,9 @@
   }
 
   function updateControlState() {
-    ui.startButton.textContent = state.status === "stopped" || state.status === "complete" ? "Start New Trial" : "Start";
+    ui.startButton.textContent = state.status === "complete" ? "Start New Trial" : "Start";
     ui.pauseButton.disabled = !(state.status === "running" || state.status === "paused");
     ui.pauseButton.textContent = state.status === "paused" ? "Resume" : "Pause";
-    ui.stopButton.disabled = !(state.status === "running" || state.status === "paused");
   }
 
   function readInputs() {
@@ -714,7 +697,6 @@
 
   ui.form.addEventListener("submit", startSimulation);
   ui.pauseButton.addEventListener("click", pauseSimulation);
-  ui.stopButton.addEventListener("click", stopSimulation);
   ui.resetButton.addEventListener("click", resetAll);
   ui.downloadButton.addEventListener("click", downloadCsv);
   ui.temperatureInput.addEventListener("input", handleInputChange);

@@ -176,15 +176,6 @@ button.secondary:hover {
   background: #d5e1e8;
 }
 
-button.danger {
-  background: #f2e3df;
-  color: #9a3d28;
-}
-
-button.danger:hover {
-  background: #e9d2cb;
-}
-
 button:disabled {
   cursor: not-allowed;
   opacity: 0.55;
