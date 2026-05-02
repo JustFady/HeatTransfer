@@ -44,16 +44,15 @@ To publish it:
 7. Click **Save**.
 
 After GitHub Pages finishes, the app will be available as a public website.
-7. Click **Save**.
-
-After GitHub Pages finishes, the app will be available as a public website.
 
 ## Browser App Features
 
 - Runs on any modern browser
 - Validates temperature and time input
-- Animates the steel ball heating in water
-- Shows second-by-second calculated temperatures
+- Animates the ball entering the water and heating over time
+- Shows second-by-second calculated temperatures and delta to the water bath
+- Plots a temperature curve with a 100 C water reference line
+- Displays the model equation and constants used by the calculation
 - Highlights the current result row during the simulation
 - Downloads results as `result.csv`
 - Requires no external dependencies
@@ -174,4 +173,4 @@ This is an educational simulation rather than a full computational fluid dynamic
 
 Original project research paper:
 
-https://www.overleaf.com/project/640ab8d6f1dd12875775fac0
+https://www.overleaf.com/read/kpfvdpvcrghm#f19c0a

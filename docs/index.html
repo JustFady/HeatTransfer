@@ -3,75 +3,97 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Heat Transfer Simulation</title>
+  <title>Heat Transfer Laboratory</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <main class="app">
-    <section class="controls" aria-labelledby="title">
+    <header class="header">
       <div>
-        <p class="eyebrow">Steel ball in boiling water</p>
-        <h1 id="title">Heat Transfer Simulation</h1>
-        <p class="summary">Enter a starting steel ball temperature and simulation length. The app calculates the ball temperature over time and animates the heating process.</p>
+        <p class="eyebrow">Transient conduction model</p>
+        <h1>Steel Ball Heat Transfer Laboratory</h1>
+        <p class="summary">Simulate a steel sphere warming in boiling water using a lumped-capacitance heat-transfer model.</p>
       </div>
+      <a class="paper-link" href="https://www.overleaf.com/read/kpfvdpvcrghm#f19c0a" target="_blank" rel="noreferrer">Research Paper</a>
+    </header>
 
+    <section class="panel controls" aria-labelledby="inputs-title">
+      <h2 id="inputs-title">Inputs</h2>
       <form id="simulation-form" class="form">
         <label for="temperature">Initial ball temperature (C)</label>
-        <input id="temperature" name="temperature" type="number" min="-20" max="100" value="20" required>
+        <input id="temperature" name="temperature" type="number" min="-20" max="100" step="1" value="20" required>
 
-        <label for="duration">Simulation time (seconds)</label>
-        <input id="duration" name="duration" type="number" min="1" max="180" value="60" required>
+        <label for="duration">Simulation time (s)</label>
+        <input id="duration" name="duration" type="number" min="1" max="180" step="1" value="60" required>
+
+        <label for="speed">Playback speed</label>
+        <select id="speed" name="speed">
+          <option value="1000">1x</option>
+          <option value="500">2x</option>
+          <option value="200">5x</option>
+          <option value="100" selected>10x</option>
+        </select>
 
         <div class="actions">
-          <button type="submit">Start Simulation</button>
+          <button type="submit">Run Simulation</button>
           <button type="button" id="reset-button" class="secondary">Reset</button>
           <button type="button" id="download-button" class="secondary">Download CSV</button>
         </div>
-
-        <p id="message" class="message" role="status" aria-live="polite"></p>
       </form>
-
-      <div class="facts">
-        <div>
-          <span>Water</span>
-          <strong>100 C</strong>
-        </div>
-        <div>
-          <span>Amount</span>
-          <strong>150 mL</strong>
-        </div>
-        <div>
-          <span>Model</span>
-          <strong>Lumped</strong>
-        </div>
-      </div>
+      <p id="message" class="message" role="status" aria-live="polite"></p>
     </section>
 
-    <section class="visual" aria-label="Animation">
-      <div class="timer">
-        <span>Elapsed</span>
-        <strong id="elapsed">0 s</strong>
+    <section class="panel model" aria-labelledby="model-title">
+      <h2 id="model-title">Model</h2>
+      <div class="equation">T(t) = T<sub>w</sub> - (T<sub>w</sub> - T<sub>0</sub>)e<sup>-hAt/mc</sup></div>
+      <dl class="params">
+        <div><dt>Water temperature</dt><dd>100 C</dd></div>
+        <div><dt>Ball radius</dt><dd>0.01 m</dd></div>
+        <div><dt>Ball mass</dt><dd>0.0103 kg</dd></div>
+        <div><dt>Steel specific heat</dt><dd>450 J/kg C</dd></div>
+        <div><dt>Heat coefficient</dt><dd>50.2 W/m^2 C</dd></div>
+        <div><dt>Surface area</dt><dd id="surface-area">0.001257 m^2</dd></div>
+      </dl>
+    </section>
+
+    <section class="panel visual" aria-label="Beaker animation">
+      <div class="readouts">
+        <div><span>Elapsed</span><strong id="elapsed">0 s</strong></div>
+        <div><span>Ball temp</span><strong id="current-temp">20.0 C</strong></div>
+        <div><span>Final temp</span><strong id="final-temp">--</strong></div>
       </div>
 
       <div class="beaker-wrap">
         <div class="beaker">
           <div class="water">
-            <div class="waves"></div>
+            <div class="waterline"></div>
           </div>
           <div id="ball" class="ball" aria-hidden="true"></div>
-          <div id="temperature-label" class="temperature-label">Ball temp: 20 C</div>
+          <div id="temperature-label" class="temperature-label">T = 20.0 C</div>
         </div>
       </div>
     </section>
 
-    <section class="results" aria-labelledby="results-title">
-      <h2 id="results-title">Results</h2>
+    <section class="panel chart-panel" aria-labelledby="chart-title">
+      <div class="section-header">
+        <h2 id="chart-title">Temperature Curve</h2>
+        <p>Ball temperature over simulated time.</p>
+      </div>
+      <canvas id="chart" width="900" height="420" aria-label="Temperature curve chart"></canvas>
+    </section>
+
+    <section class="panel results" aria-labelledby="results-title">
+      <div class="section-header">
+        <h2 id="results-title">Data Table</h2>
+        <p>Generated values are rounded to one decimal place.</p>
+      </div>
       <div class="table-wrap">
         <table>
           <thead>
             <tr>
               <th>Time (s)</th>
               <th>Ball Temp (C)</th>
+              <th>Delta to Water (C)</th>
             </tr>
           </thead>
           <tbody id="results-body"></tbody>
