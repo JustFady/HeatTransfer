@@ -31,22 +31,17 @@ This works on:
 
 ## Publish As A Website
 
-This repo includes a **Deploy Browser App** GitHub Actions workflow for GitHub Pages.
+This repo is ready for GitHub Pages because the browser app lives in `docs/`.
 
 To publish it:
 
 1. Open the repo on GitHub.
 2. Go to **Settings**.
 3. Go to **Pages**.
-4. Under **Build and deployment**, choose **GitHub Actions**.
-5. Run the **Deploy Browser App** workflow, or push to `main`.
-
-If you prefer branch-based Pages instead:
-
-1. Under **Build and deployment**, choose **Deploy from a branch**.
-2. Select branch `main`.
-3. Select folder `/docs`.
-4. Click **Save**.
+4. Under **Build and deployment**, choose **Deploy from a branch**.
+5. Select branch `main`.
+6. Select folder `/docs`.
+7. Click **Save**.
 
 After GitHub Pages finishes, the app will be available as a public website.
 7. Click **Save**.
