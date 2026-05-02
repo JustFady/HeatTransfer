@@ -1,0 +1,31 @@
+name: Build Windows App
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build HeatTransfer
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up MSBuild
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Build Release
+        run: msbuild HeatTransfer.sln /restore /p:Configuration=Release /p:Platform="Any CPU"
+
+      - name: Upload runnable app
+        uses: actions/upload-artifact@v4
+        with:
+          name: HeatTransfer-Windows
+          path: |
+            bin/Release/HeatTransfer.exe
+            bin/Release/HeatTransfer.exe.config
