@@ -600,14 +600,28 @@
     stopTimer();
     state.status = "ready";
     state.activeIndex = 0;
+    state.rows = [];
     state.trial = createNominalTrial();
     ui.temperatureInput.value = "20";
     ui.durationInput.value = "60";
     ui.speedInput.value = "100";
-    ui.message.textContent = "";
+    ui.message.textContent = "Reset complete. Press Start to generate a new trial.";
     ui.runStatus.textContent = "Ready";
+    ui.resultsBody.innerHTML = "";
+    ui.elapsed.textContent = "0 s";
+    ui.currentTemp.textContent = "20.0 C";
+    ui.finalTemp.textContent = "--";
+    ui.heatFlux.textContent = "--";
+    ui.fluidSpeed.textContent = "--";
+    ui.trialCoefficient.textContent = "--";
+    ui.reynoldsNumber.textContent = "--";
+    ui.nusseltNumber.textContent = "--";
+    ui.temperatureLabel.textContent = "T = 20.0 C";
+    ui.ball.style.top = Physics.airTop + "px";
+    ui.ball.style.left = "calc(50% - 28px)";
+    setBallTemperature(20);
     resetField();
-    buildPreview();
+    drawChart([], null);
     updateControlState();
   }
 

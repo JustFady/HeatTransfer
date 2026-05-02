@@ -73,7 +73,7 @@ After GitHub Pages finishes, the app will be available as a public website.
 3. Click **Start** to begin a new experimental trial.
 4. Use **Pause** and **Resume** to temporarily freeze and continue the same trial.
 5. Use **Stop** to halt the current trial while preserving the displayed frame and data.
-6. Use **Reset** only when you want to clear the run and return to the default preview.
+6. Use **Reset** only when you want to clear the run, clear the table, and return to the release position.
 7. Watch the ball motion, thermal field, temperature curve, and result table.
 8. Click **Download CSV** if you want the results in Excel or another spreadsheet tool.
 
