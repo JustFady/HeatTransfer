@@ -55,6 +55,7 @@ After GitHub Pages finishes, the app will be available as a public website.
 - Plots a temperature curve with a 100 C water reference line
 - Displays the model equation and constants used by the calculation
 - Adds trial-to-trial variation in heat-transfer coefficient and measurement noise
+- Uses a fluctuating local heat-transfer coefficient during each trial
 - Moves the ball through a free-fall drop and water drift path during playback
 - Renders a pseudo CFD-style water field with thermal wake colors and velocity vectors
 - Reports heat flux, fluid speed, Reynolds number, and Nusselt number estimates
@@ -73,7 +74,7 @@ After GitHub Pages finishes, the app will be available as a public website.
 3. Click **Start** to begin a new experimental trial.
 4. Use **Pause** and **Resume** to temporarily freeze and continue the same trial.
 5. Use **Reset** only when you want to clear the run, clear the table, and return to the release position.
-6. Watch the ball motion, thermal field, temperature curve, and result table.
+6. Watch the ball motion, thermal field, temperature curve, and result table. The table stays empty until a trial is started.
 7. Click **Download CSV** if you want the results in Excel or another spreadsheet tool.
 
 ## Windows Desktop App

@@ -88,10 +88,10 @@
 
   function createTrial() {
     return {
-      coefficient: Physics.nominalHeatCoefficient * (0.9 + (Math.random() * 0.2)),
-      baseVelocity: 0.018 + (Math.random() * 0.035),
+      coefficient: Physics.nominalHeatCoefficient * (0.78 + (Math.random() * 0.44)),
+      baseVelocity: 0.012 + (Math.random() * 0.055),
       phase: Math.random() * Math.PI * 2,
-      noiseScale: 0.24 + (Math.random() * 0.18)
+      noiseScale: 0.45 + (Math.random() * 0.55)
     };
   }
 
@@ -132,20 +132,27 @@
     var rows = [];
     var drift = 50;
     var driftVelocity = (Math.random() - 0.5) * 2.4;
+    var modelTemperature = initialTemperature;
 
     for (var second = 0; second <= duration; second += 1) {
       var immersedTime = Math.max(0, second - Physics.dropDuration);
-      var modelTemperature = Physics.waterTemp -
-        ((Physics.waterTemp - initialTemperature) * Math.exp(-heatTransferRate(trial.coefficient) * immersedTime));
+      var localCoefficient = trial.coefficient *
+        (1 + (Math.sin(second * 0.31 + trial.phase) * 0.1) + (randomNormal() * 0.025));
+
+      if (immersedTime > 0) {
+        modelTemperature += (Physics.waterTemp - modelTemperature) *
+          (1 - Math.exp(-heatTransferRate(localCoefficient)));
+      }
+
       var measuredTemperature = clamp(
-        modelTemperature + (randomNormal() * trial.noiseScale) + (Math.sin(second * 0.45 + trial.phase) * 0.16),
+        modelTemperature + (randomNormal() * trial.noiseScale) + (Math.sin(second * 0.45 + trial.phase) * 0.3),
         Limits.minTemp,
         Physics.waterTemp
       );
       var motion = getBallMotion(second, duration, trial.phase, drift, driftVelocity);
       var reynolds = getReynolds(trial.baseVelocity, second, trial.phase);
       var nusselt = getNusselt(reynolds);
-      var heatFlux = trial.coefficient * Math.max(0, Physics.waterTemp - modelTemperature);
+      var heatFlux = localCoefficient * Math.max(0, Physics.waterTemp - modelTemperature);
 
       drift = motion.nextDrift;
       driftVelocity = motion.nextVelocity;
@@ -154,6 +161,7 @@
         time: second,
         temperature: measuredTemperature,
         modelTemperature: modelTemperature,
+        localCoefficient: localCoefficient,
         delta: Physics.waterTemp - measuredTemperature,
         heatFlux: heatFlux,
         reynolds: reynolds,
@@ -613,21 +621,6 @@
     updateControlState();
   }
 
-  function buildPreview() {
-    var input = readInputs();
-    var validationMessage = validateInputs(input.initialTemperature, input.duration);
-
-    if (validationMessage) {
-      ui.message.textContent = validationMessage;
-      return;
-    }
-
-    state.rows = buildTrialRows(input.initialTemperature, input.duration, state.trial);
-    renderRows(state.rows);
-    updateTrialReadouts(state.rows);
-    renderFrame(state.rows[0]);
-  }
-
   function updateTrialReadouts(rows) {
     var finalRow = rows[rows.length - 1];
     var representativeRow = rows[Math.min(rows.length - 1, Math.max(1, Math.round(rows.length / 3)))];
@@ -646,9 +639,18 @@
     state.activeIndex = 0;
     state.trial = createNominalTrial();
     ui.runStatus.textContent = "Ready";
-    ui.message.textContent = "";
+    state.rows = [];
+    ui.resultsBody.innerHTML = "";
+    ui.elapsed.textContent = "0 s";
+    ui.finalTemp.textContent = "--";
+    ui.heatFlux.textContent = "--";
+    ui.fluidSpeed.textContent = "--";
+    ui.trialCoefficient.textContent = "--";
+    ui.reynoldsNumber.textContent = "--";
+    ui.nusseltNumber.textContent = "--";
+    ui.message.textContent = "Inputs changed. Press Start to generate a new randomized trial.";
     resetField();
-    buildPreview();
+    drawChart([], null);
     updateControlState();
   }
 
@@ -667,10 +669,11 @@
 
   function downloadCsv() {
     if (!state.rows.length) {
-      buildPreview();
+      ui.message.textContent = "Press Start first so there is a trial to export.";
+      return;
     }
 
-    var csv = "Time (s),Measured ball temperature (C),Model ball temperature (C),Delta to water (C),Heat flux (W/m^2),Reynolds,Nusselt,Fluid speed (m/s),Ball X (%),Ball Y (px),Trial h (W/m^2 C)\n" +
+    var csv = "Time (s),Measured ball temperature (C),Model ball temperature (C),Delta to water (C),Heat flux (W/m^2),Reynolds,Nusselt,Fluid speed (m/s),Ball X (%),Ball Y (px),Trial h (W/m^2 C),Local h (W/m^2 C)\n" +
       state.rows.map(function (row) {
         return row.time.toFixed(0) + "," +
           row.temperature.toFixed(1) + "," +
@@ -682,7 +685,8 @@
           row.fluidSpeed.toFixed(4) + "," +
           row.ballLeftPercent.toFixed(1) + "," +
           row.ballTop.toFixed(1) + "," +
-          state.trial.coefficient.toFixed(2);
+          state.trial.coefficient.toFixed(2) + "," +
+          row.localCoefficient.toFixed(2);
       }).join("\n");
     var blob = new Blob([csv], { type: "text/csv" });
     var url = URL.createObjectURL(blob);
