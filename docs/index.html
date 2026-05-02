@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Heat Transfer Simulation</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main class="app">
+    <section class="controls" aria-labelledby="title">
+      <div>
+        <p class="eyebrow">Steel ball in boiling water</p>
+        <h1 id="title">Heat Transfer Simulation</h1>
+        <p class="summary">Enter a starting steel ball temperature and simulation length. The app calculates the ball temperature over time and animates the heating process.</p>
+      </div>
+
+      <form id="simulation-form" class="form">
+        <label for="temperature">Initial ball temperature (C)</label>
+        <input id="temperature" name="temperature" type="number" min="-20" max="100" value="20" required>
+
+        <label for="duration">Simulation time (seconds)</label>
+        <input id="duration" name="duration" type="number" min="1" max="180" value="60" required>
+
+        <div class="actions">
+          <button type="submit">Start Simulation</button>
+          <button type="button" id="reset-button" class="secondary">Reset</button>
+          <button type="button" id="download-button" class="secondary">Download CSV</button>
+        </div>
+
+        <p id="message" class="message" role="status" aria-live="polite"></p>
+      </form>
+
+      <div class="facts">
+        <div>
+          <span>Water</span>
+          <strong>100 C</strong>
+        </div>
+        <div>
+          <span>Amount</span>
+          <strong>150 mL</strong>
+        </div>
+        <div>
+          <span>Model</span>
+          <strong>Lumped</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="visual" aria-label="Animation">
+      <div class="timer">
+        <span>Elapsed</span>
+        <strong id="elapsed">0 s</strong>
+      </div>
+
+      <div class="beaker-wrap">
+        <div class="beaker">
+          <div class="water">
+            <div class="waves"></div>
+          </div>
+          <div id="ball" class="ball" aria-hidden="true"></div>
+          <div id="temperature-label" class="temperature-label">Ball temp: 20 C</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="results" aria-labelledby="results-title">
+      <h2 id="results-title">Results</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Time (s)</th>
+              <th>Ball Temp (C)</th>
+            </tr>
+          </thead>
+          <tbody id="results-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

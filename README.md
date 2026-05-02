@@ -1,21 +1,85 @@
 # Heat Transfer
 
-Heat Transfer is a Windows desktop app that simulates a steel ball warming up in boiling water. You enter the ball's starting temperature and how long to run the simulation, then the app shows the animation, a second-by-second temperature table, and a CSV export.
+Heat Transfer is an educational simulation of a steel ball warming up in boiling water. It now has two ways to run:
 
-## Fastest Way To Run It
+- **Browser version:** runs on any OS with no install.
+- **Windows desktop version:** the original Windows Forms app.
 
-This app is built with Windows Forms, so it runs on Windows.
+## Fastest Way To View It
+
+Open the browser version:
+
+```text
+docs/index.html
+```
+
+That file works directly in Chrome, Edge, Firefox, Safari, and other modern browsers. No Visual Studio, .NET, or build step is needed.
+
+## Run On Any OS
 
 1. Download this repository as a ZIP from GitHub.
 2. Extract the ZIP.
-3. Double-click `run.bat`.
-4. If Windows shows a security warning, choose **More info** and then **Run anyway**.
+3. Open `docs/index.html` in a browser.
 
-If the app has already been built, `run.bat` opens it right away. If it has not been built yet, `run.bat` builds it first.
+This works on:
 
-## Dependencies
+- Windows
+- macOS
+- Linux
+- ChromeOS
+- Mobile browsers
 
-You only need these:
+## Publish As A Website
+
+This repo includes a **Deploy Browser App** GitHub Actions workflow for GitHub Pages.
+
+To publish it:
+
+1. Open the repo on GitHub.
+2. Go to **Settings**.
+3. Go to **Pages**.
+4. Under **Build and deployment**, choose **GitHub Actions**.
+5. Run the **Deploy Browser App** workflow, or push to `main`.
+
+If you prefer branch-based Pages instead:
+
+1. Under **Build and deployment**, choose **Deploy from a branch**.
+2. Select branch `main`.
+3. Select folder `/docs`.
+4. Click **Save**.
+
+After GitHub Pages finishes, the app will be available as a public website.
+7. Click **Save**.
+
+After GitHub Pages finishes, the app will be available as a public website.
+
+## Browser App Features
+
+- Runs on any modern browser
+- Validates temperature and time input
+- Animates the steel ball heating in water
+- Shows second-by-second calculated temperatures
+- Highlights the current result row during the simulation
+- Downloads results as `result.csv`
+- Requires no external dependencies
+
+## Use The Simulation
+
+1. Enter the starting steel ball temperature in Celsius.
+   - Minimum: `-20`
+   - Maximum: `100`
+2. Enter how long the simulation should run in seconds.
+   - Minimum: `1`
+   - Maximum: `180`
+3. Click **Start Simulation**.
+4. Watch the animation and the result table.
+5. Click **Download CSV** if you want the results in Excel or another spreadsheet tool.
+
+## Windows Desktop App
+
+The original Windows Forms app is still included.
+
+### Desktop Dependencies
 
 - Windows 10 or Windows 11
 - Visual Studio Community, Professional, or Enterprise
@@ -32,24 +96,19 @@ When installing Visual Studio, select:
 .NET desktop development
 ```
 
-That workload includes the build tools needed for this project. The app does not use any NuGet packages or external libraries.
+The desktop app does not use NuGet packages or external libraries.
 
-## Run From GitHub Actions
+### Run The Desktop App
 
-If you do not want to build the app yourself:
+Double-click:
 
-1. Open the GitHub repo.
-2. Click the **Actions** tab.
-3. Open the latest successful **Build Windows App** run.
-4. Download the `HeatTransfer-Windows` artifact.
-5. Unzip it.
-6. Run `HeatTransfer.exe`.
+```text
+run.bat
+```
 
-The workflow file is included at `.github/workflows/build.yml`, so GitHub builds the Windows app automatically after pushes to `main`.
+If the app has already been built, `run.bat` opens it right away. If it has not been built yet, `run.bat` builds it first.
 
-## Build It Yourself
-
-### Option 1: Double-click build
+### Build The Desktop App
 
 Double-click:
 
@@ -57,55 +116,30 @@ Double-click:
 build.bat
 ```
 
-The built app will be created here:
-
-```text
-bin\Release\HeatTransfer.exe
-```
-
-### Option 2: Visual Studio
-
-1. Open Visual Studio.
-2. Click **Open a project or solution**.
-3. Select `HeatTransfer.sln`.
-4. Press `F5` to build and run.
-
-### Option 3: Command line
-
-Open a Visual Studio Developer Command Prompt and run:
+Or open a Visual Studio Developer Command Prompt and run:
 
 ```powershell
 msbuild HeatTransfer.sln /restore /p:Configuration=Release /p:Platform="Any CPU"
 ```
 
-Then run:
+The built desktop app is created here:
 
 ```text
 bin\Release\HeatTransfer.exe
 ```
 
-## Use The App
+## GitHub Actions Build
 
-1. Enter the starting steel ball temperature in Celsius.
-   - Minimum: `-20`
-   - Maximum: `100`
-2. Enter how long the simulation should run in seconds.
-   - Minimum: `1`
-   - Maximum: `180`
-3. Click **Start Simulation**.
-4. Watch the ball animation and the result table.
-5. Open `result.csv` from the app folder if you want the data in Excel.
+The workflow at `.github/workflows/build.yml` builds the Windows desktop app automatically on pushes to `main`.
 
-Each new run replaces the previous `result.csv`.
+To download a built Windows app:
 
-## Features
-
-- Validates temperature and time input
-- Animates the ball entering the water
-- Shows second-by-second calculated temperatures
-- Highlights the current row during the simulation
-- Exports results to `result.csv`
-- Includes a GitHub Actions build for downloadable Windows artifacts
+1. Open the GitHub repo.
+2. Click the **Actions** tab.
+3. Open the latest successful **Build Windows App** run.
+4. Download the `HeatTransfer-Windows` artifact.
+5. Unzip it.
+6. Run `HeatTransfer.exe`.
 
 ## Model
 
@@ -128,15 +162,18 @@ This is an educational simulation rather than a full computational fluid dynamic
 
 ## Project Structure
 
-- `run.bat` builds if needed and starts the app.
-- `build.bat` builds the Release version.
+- `docs/index.html` is the cross-platform browser app.
+- `docs/styles.css` styles the browser app.
+- `docs/app.js` runs the browser simulation logic.
+- `run.bat` builds if needed and starts the Windows desktop app.
+- `build.bat` builds the Windows desktop Release version.
 - `scripts/build.ps1` finds MSBuild and builds the solution.
 - `scripts/run.ps1` starts the Release executable.
 - `Program.cs` starts the Windows Forms application.
-- `MainForm.cs` handles input validation, simulation results, table binding, animation timing, and CSV export.
-- `Animation.cs` renders the beaker, water, steel ball, and current temperature label.
-- `ResultItem.cs` represents one row of simulation output.
-- `.github/workflows/build.yml` builds the app on GitHub Actions.
+- `MainForm.cs` handles desktop input validation, simulation results, table binding, animation timing, and CSV export.
+- `Animation.cs` renders the desktop beaker, water, steel ball, and current temperature label.
+- `ResultItem.cs` represents one row of desktop simulation output.
+- `.github/workflows/build.yml` builds the desktop app on GitHub Actions.
 
 ## Research Paper
 
