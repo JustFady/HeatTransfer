@@ -70,10 +70,12 @@ After GitHub Pages finishes, the app will be available as a public website.
 2. Enter how long the simulation should run in seconds.
    - Minimum: `1`
    - Maximum: `180`
-3. Click **Start**.
-4. Use **Pause**, **Resume**, or **Stop** to control playback.
-5. Watch the ball motion, thermal field, temperature curve, and result table.
-6. Click **Download CSV** if you want the results in Excel or another spreadsheet tool.
+3. Click **Start** to begin a new experimental trial.
+4. Use **Pause** and **Resume** to temporarily freeze and continue the same trial.
+5. Use **Stop** to halt the current trial while preserving the displayed frame and data.
+6. Use **Reset** only when you want to clear the run and return to the default preview.
+7. Watch the ball motion, thermal field, temperature curve, and result table.
+8. Click **Download CSV** if you want the results in Excel or another spreadsheet tool.
 
 ## Windows Desktop App
 

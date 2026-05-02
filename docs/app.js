@@ -527,6 +527,11 @@
       return;
     }
 
+    if (state.status === "running") {
+      ui.message.textContent = "Simulation is already running. Use Pause or Stop first.";
+      return;
+    }
+
     stopTimer();
     state.status = "running";
     state.activeIndex = 0;
@@ -535,7 +540,7 @@
     state.rows = buildTrialRows(input.initialTemperature, input.duration, state.trial);
     renderRows(state.rows);
     updateTrialReadouts(state.rows);
-    ui.message.textContent = "Simulation running.";
+    ui.message.textContent = "New trial running.";
     ui.runStatus.textContent = "Running";
     renderFrame(state.rows[state.activeIndex]);
     state.activeIndex += 1;
@@ -576,8 +581,9 @@
   function stopSimulation() {
     if (state.status === "running" || state.status === "paused") {
       stopTimer();
+      state.activeIndex = Math.max(0, state.activeIndex - 1);
       state.status = "stopped";
-      ui.message.textContent = "Simulation stopped.";
+      ui.message.textContent = "Simulation stopped. Current trial data is preserved. Press Start for a new trial or Reset to clear.";
       ui.runStatus.textContent = "Stopped";
       updateControlState();
     }
@@ -633,6 +639,11 @@
     if (state.status === "running" || state.status === "paused") {
       stopSimulation();
     }
+
+    if (state.status === "stopped" || state.status === "complete") {
+      ui.message.textContent = "Inputs changed. Preview reset with nominal parameters.";
+    }
+
     state.status = "ready";
     state.activeIndex = 0;
     state.trial = createNominalTrial();
@@ -644,6 +655,7 @@
   }
 
   function updateControlState() {
+    ui.startButton.textContent = state.status === "stopped" || state.status === "complete" ? "Start New Trial" : "Start";
     ui.pauseButton.disabled = !(state.status === "running" || state.status === "paused");
     ui.pauseButton.textContent = state.status === "paused" ? "Resume" : "Pause";
     ui.stopButton.disabled = !(state.status === "running" || state.status === "paused");
