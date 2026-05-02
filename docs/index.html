@@ -17,70 +17,82 @@
       <a class="paper-link" href="https://www.overleaf.com/read/kpfvdpvcrghm#f19c0a" target="_blank" rel="noreferrer">Research Paper</a>
     </header>
 
-    <section class="panel controls" aria-labelledby="inputs-title">
-      <h2 id="inputs-title">Inputs</h2>
-      <form id="simulation-form" class="form">
-        <label for="temperature">Initial ball temperature (C)</label>
-        <input id="temperature" name="temperature" type="number" min="-20" max="100" step="1" value="20" required>
+    <div class="lab-top">
+      <div class="left-stack">
+        <section class="panel controls" aria-labelledby="inputs-title">
+          <h2 id="inputs-title">Inputs</h2>
+          <form id="simulation-form" class="form">
+            <div class="input-grid">
+              <div>
+                <label for="temperature">Initial ball temperature (C)</label>
+                <input id="temperature" name="temperature" type="number" min="-20" max="100" step="1" value="20" required>
+              </div>
 
-        <label for="duration">Simulation time (s)</label>
-        <input id="duration" name="duration" type="number" min="1" max="180" step="1" value="60" required>
+              <div>
+                <label for="duration">Simulation time (s)</label>
+                <input id="duration" name="duration" type="number" min="1" max="180" step="1" value="60" required>
+              </div>
 
-        <label for="speed">Playback speed</label>
-        <select id="speed" name="speed">
-          <option value="1000">1x</option>
-          <option value="500">2x</option>
-          <option value="200">5x</option>
-          <option value="100" selected>10x</option>
-        </select>
+              <div>
+                <label for="speed">Playback speed</label>
+                <select id="speed" name="speed">
+                  <option value="1000">1x</option>
+                  <option value="500">2x</option>
+                  <option value="200">5x</option>
+                  <option value="100" selected>10x</option>
+                </select>
+              </div>
+            </div>
 
-        <div class="actions">
-          <button type="submit" id="start-button">Start</button>
-          <button type="button" id="pause-button" class="secondary">Pause</button>
-          <button type="button" id="reset-button" class="secondary">Reset</button>
-          <button type="button" id="download-button" class="secondary">Download CSV</button>
-        </div>
-      </form>
-      <p id="message" class="message" role="status" aria-live="polite"></p>
-    </section>
+            <div class="actions">
+              <button type="submit" id="start-button">Start</button>
+              <button type="button" id="pause-button" class="secondary">Pause</button>
+              <button type="button" id="reset-button" class="secondary">Reset</button>
+              <button type="button" id="download-button" class="secondary">Download CSV</button>
+            </div>
+          </form>
+          <p id="message" class="message" role="status" aria-live="polite"></p>
+        </section>
 
-    <section class="panel model" aria-labelledby="model-title">
-      <h2 id="model-title">Model</h2>
-      <div class="equation">T(t) = T<sub>w</sub> - (T<sub>w</sub> - T<sub>0</sub>)e<sup>-hAt/mc</sup></div>
-      <dl class="params">
-        <div><dt>Water temperature</dt><dd>100 C</dd></div>
-        <div><dt>Ball radius</dt><dd>0.01 m</dd></div>
-        <div><dt>Ball mass</dt><dd>0.0103 kg</dd></div>
-        <div><dt>Steel specific heat</dt><dd>450 J/kg C</dd></div>
-        <div><dt>Nominal heat coefficient</dt><dd>50.2 W/m^2 C</dd></div>
-        <div><dt>Current trial coefficient</dt><dd id="trial-coefficient">--</dd></div>
-        <div><dt>Reynolds estimate</dt><dd id="reynolds-number">--</dd></div>
-        <div><dt>Nusselt estimate</dt><dd id="nusselt-number">--</dd></div>
-        <div><dt>Surface area</dt><dd id="surface-area">0.001257 m^2</dd></div>
-      </dl>
-    </section>
-
-    <section class="panel visual" aria-label="Beaker animation">
-      <div class="readouts">
-        <div><span>Elapsed</span><strong id="elapsed">0 s</strong></div>
-        <div><span>Ball temp</span><strong id="current-temp">20.0 C</strong></div>
-        <div><span>Final temp</span><strong id="final-temp">--</strong></div>
-        <div><span>Heat flux</span><strong id="heat-flux">--</strong></div>
-        <div><span>Bath velocity</span><strong id="fluid-speed">--</strong></div>
-        <div><span>Status</span><strong id="run-status">Ready</strong></div>
+        <section class="panel model" aria-labelledby="model-title">
+          <h2 id="model-title">Model</h2>
+          <div class="equation">T(t) = T<sub>w</sub> - (T<sub>w</sub> - T<sub>0</sub>)e<sup>-hAt/mc</sup></div>
+          <dl class="params">
+            <div><dt>Water temperature</dt><dd>100 C</dd></div>
+            <div><dt>Ball radius</dt><dd>0.01 m</dd></div>
+            <div><dt>Ball mass</dt><dd>0.0103 kg</dd></div>
+            <div><dt>Steel specific heat</dt><dd>450 J/kg C</dd></div>
+            <div><dt>Nominal heat coefficient</dt><dd>50.2 W/m^2 C</dd></div>
+            <div><dt>Current trial coefficient</dt><dd id="trial-coefficient">--</dd></div>
+            <div><dt>Reynolds estimate</dt><dd id="reynolds-number">--</dd></div>
+            <div><dt>Nusselt estimate</dt><dd id="nusselt-number">--</dd></div>
+            <div><dt>Surface area</dt><dd id="surface-area">0.001257 m^2</dd></div>
+          </dl>
+        </section>
       </div>
 
-      <div class="beaker-wrap">
-        <div class="beaker">
-          <div class="water">
-            <canvas id="field-canvas" width="520" height="340" aria-label="Water temperature and velocity field"></canvas>
-            <div class="waterline"></div>
+      <section class="panel visual" aria-label="Beaker animation">
+        <div class="readouts">
+          <div><span>Elapsed</span><strong id="elapsed">0 s</strong></div>
+          <div><span>Ball temp</span><strong id="current-temp">20.0 C</strong></div>
+          <div><span>Final temp</span><strong id="final-temp">--</strong></div>
+          <div><span>Heat flux</span><strong id="heat-flux">--</strong></div>
+          <div><span>Bath velocity</span><strong id="fluid-speed">--</strong></div>
+          <div><span>Status</span><strong id="run-status">Ready</strong></div>
+        </div>
+
+        <div class="beaker-wrap">
+          <div class="beaker">
+            <div class="water">
+              <canvas id="field-canvas" width="520" height="340" aria-label="Water temperature and velocity field"></canvas>
+              <div class="waterline"></div>
+            </div>
+            <div id="ball" class="ball" aria-hidden="true"></div>
+            <div id="temperature-label" class="temperature-label">T = 20.0 C</div>
           </div>
-          <div id="ball" class="ball" aria-hidden="true"></div>
-          <div id="temperature-label" class="temperature-label">T = 20.0 C</div>
         </div>
-      </div>
-    </section>
+      </section>
+    </div>
 
     <section class="panel chart-panel" aria-labelledby="chart-title">
       <div class="section-header">
