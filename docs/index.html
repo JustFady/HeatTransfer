@@ -35,7 +35,9 @@
         </select>
 
         <div class="actions">
-          <button type="submit">Run Simulation</button>
+          <button type="submit" id="start-button">Start</button>
+          <button type="button" id="pause-button" class="secondary">Pause</button>
+          <button type="button" id="stop-button" class="secondary danger">Stop</button>
           <button type="button" id="reset-button" class="secondary">Reset</button>
           <button type="button" id="download-button" class="secondary">Download CSV</button>
         </div>
@@ -53,6 +55,8 @@
         <div><dt>Steel specific heat</dt><dd>450 J/kg C</dd></div>
         <div><dt>Nominal heat coefficient</dt><dd>50.2 W/m^2 C</dd></div>
         <div><dt>Current trial coefficient</dt><dd id="trial-coefficient">--</dd></div>
+        <div><dt>Reynolds estimate</dt><dd id="reynolds-number">--</dd></div>
+        <div><dt>Nusselt estimate</dt><dd id="nusselt-number">--</dd></div>
         <div><dt>Surface area</dt><dd id="surface-area">0.001257 m^2</dd></div>
       </dl>
     </section>
@@ -62,11 +66,15 @@
         <div><span>Elapsed</span><strong id="elapsed">0 s</strong></div>
         <div><span>Ball temp</span><strong id="current-temp">20.0 C</strong></div>
         <div><span>Final temp</span><strong id="final-temp">--</strong></div>
+        <div><span>Heat flux</span><strong id="heat-flux">--</strong></div>
+        <div><span>Bath velocity</span><strong id="fluid-speed">--</strong></div>
+        <div><span>Status</span><strong id="run-status">Ready</strong></div>
       </div>
 
       <div class="beaker-wrap">
         <div class="beaker">
           <div class="water">
+            <canvas id="field-canvas" width="520" height="340" aria-label="Water temperature and velocity field"></canvas>
             <div class="waterline"></div>
           </div>
           <div id="ball" class="ball" aria-hidden="true"></div>
@@ -95,6 +103,9 @@
               <th>Time (s)</th>
               <th>Measured Ball Temp (C)</th>
               <th>Delta to Water (C)</th>
+              <th>Heat Flux (W/m^2)</th>
+              <th>Re</th>
+              <th>Nu</th>
             </tr>
           </thead>
           <tbody id="results-body"></tbody>

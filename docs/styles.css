@@ -147,7 +147,7 @@ select:focus {
 
 .actions {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 9px;
   margin-top: 8px;
 }
@@ -174,6 +174,20 @@ button.secondary {
 
 button.secondary:hover {
   background: #d5e1e8;
+}
+
+button.danger {
+  background: #f2e3df;
+  color: #9a3d28;
+}
+
+button.danger:hover {
+  background: #e9d2cb;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
 }
 
 .message {
@@ -266,7 +280,17 @@ dd,
   height: 70%;
   overflow: hidden;
   border: 1px solid #4e9abc;
-  background: linear-gradient(#bfeefb, var(--cyan));
+  background: #78c2de;
+}
+
+#field-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
 }
 
 .waterline {
@@ -278,6 +302,7 @@ dd,
   background:
     radial-gradient(ellipse at center, rgba(255, 255, 255, 0.88) 0 35%, transparent 38%) 0 0 / 56px 18px repeat-x;
   animation: waves 2s linear infinite;
+  pointer-events: none;
 }
 
 .ball {
@@ -402,6 +427,10 @@ tr.active td {
   }
 
   .readouts {
+    grid-template-columns: 1fr;
+  }
+
+  .actions {
     grid-template-columns: 1fr;
   }
 

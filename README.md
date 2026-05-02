@@ -49,12 +49,15 @@ After GitHub Pages finishes, the app will be available as a public website.
 
 - Runs on any modern browser
 - Validates temperature and time input
+- Provides Start, Pause/Resume, Stop, Reset, and CSV export controls
 - Animates the ball entering the water and heating over time
 - Shows second-by-second calculated temperatures and delta to the water bath
 - Plots a temperature curve with a 100 C water reference line
 - Displays the model equation and constants used by the calculation
 - Adds trial-to-trial variation in heat-transfer coefficient and measurement noise
 - Moves the ball through a free-fall drop and water drift path during playback
+- Renders a pseudo CFD-style water field with thermal wake colors and velocity vectors
+- Reports heat flux, fluid speed, Reynolds number, and Nusselt number estimates
 - Highlights the current result row during the simulation
 - Downloads results as `result.csv`
 - Requires no external dependencies
@@ -67,9 +70,10 @@ After GitHub Pages finishes, the app will be available as a public website.
 2. Enter how long the simulation should run in seconds.
    - Minimum: `1`
    - Maximum: `180`
-3. Click **Start Simulation**.
-4. Watch the animation and the result table.
-5. Click **Download CSV** if you want the results in Excel or another spreadsheet tool.
+3. Click **Start**.
+4. Use **Pause**, **Resume**, or **Stop** to control playback.
+5. Watch the ball motion, thermal field, temperature curve, and result table.
+6. Click **Download CSV** if you want the results in Excel or another spreadsheet tool.
 
 ## Windows Desktop App
 
@@ -154,7 +158,7 @@ Where:
 - `m` is the steel ball mass, currently `0.0103 kg`
 - `c` is steel specific heat, currently `450 J/kg C`
 
-Each browser simulation run adds small random experimental variation so repeated trials are not identical. This is an educational simulation rather than a full computational fluid dynamics model.
+Each browser simulation run adds small random experimental variation so repeated trials are not identical. The browser simulation includes a lightweight finite-difference-style thermal field and velocity-vector visualization to approximate CFD behavior in the browser. It is still an educational reduced-order model, not a full Navier-Stokes CFD solver.
 
 ## Project Structure
 
