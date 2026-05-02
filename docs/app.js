@@ -13,6 +13,7 @@
     ballMass: 0.0103,
     steelSpecificHeat: 450.0,
     nominalHeatCoefficient: 50.2,
+    steelConductivity: 50.2,
     waterDensity: 958.4,
     waterViscosity: 0.000282,
     waterConductivity: 0.679,
@@ -37,6 +38,7 @@
     pauseButton: document.getElementById("pause-button"),
     resetButton: document.getElementById("reset-button"),
     downloadButton: document.getElementById("download-button"),
+    exportChartButton: document.getElementById("export-chart-button"),
     temperatureInput: document.getElementById("temperature"),
     durationInput: document.getElementById("duration"),
     speedInput: document.getElementById("speed"),
@@ -55,7 +57,9 @@
     surfaceArea: document.getElementById("surface-area"),
     trialCoefficient: document.getElementById("trial-coefficient"),
     reynoldsNumber: document.getElementById("reynolds-number"),
-    nusseltNumber: document.getElementById("nusselt-number")
+    nusseltNumber: document.getElementById("nusselt-number"),
+    biotNumber: document.getElementById("biot-number"),
+    timeConstant: document.getElementById("time-constant")
   };
 
   var state = {
@@ -70,6 +74,22 @@
 
   function surfaceArea() {
     return 4 * Math.PI * Math.pow(Physics.ballRadius, 2);
+  }
+
+  function volume() {
+    return (4 / 3) * Math.PI * Math.pow(Physics.ballRadius, 3);
+  }
+
+  function characteristicLength() {
+    return volume() / surfaceArea();
+  }
+
+  function biotNumber(coefficient) {
+    return coefficient * characteristicLength() / Physics.steelConductivity;
+  }
+
+  function timeConstant(coefficient) {
+    return Physics.ballMass * Physics.steelSpecificHeat / (coefficient * surfaceArea());
   }
 
   function heatTransferRate(coefficient) {
@@ -457,6 +477,21 @@
       return;
     }
 
+    context.strokeStyle = "#c8912d";
+    context.lineWidth = 2;
+    context.setLineDash([8, 6]);
+    context.beginPath();
+    rows.forEach(function (row, index) {
+      var point = getChartPointForTemperature(row.time, row.modelTemperature, margin, plotWidth, plotHeight, maxTime, minTemp, maxTemp);
+      if (index === 0) {
+        context.moveTo(point.x, point.y);
+      } else {
+        context.lineTo(point.x, point.y);
+      }
+    });
+    context.stroke();
+    context.setLineDash([]);
+
     context.strokeStyle = "#d75a3a";
     context.lineWidth = 3;
     context.beginPath();
@@ -480,6 +515,31 @@
     context.setLineDash([]);
     context.fillStyle = "#1e6fa8";
     context.fillText("Water bath 100 C", margin.left + plotWidth - 112, waterY - 8);
+    drawLegend(context, margin);
+  }
+
+  function drawLegend(context, margin) {
+    var x = margin.left + 218;
+    var y = 14;
+    context.font = "12px Arial";
+    context.lineWidth = 3;
+
+    context.strokeStyle = "#d75a3a";
+    context.beginPath();
+    context.moveTo(x, y);
+    context.lineTo(x + 26, y);
+    context.stroke();
+    context.fillStyle = "#16232d";
+    context.fillText("measured", x + 32, y + 4);
+
+    context.strokeStyle = "#c8912d";
+    context.setLineDash([7, 5]);
+    context.beginPath();
+    context.moveTo(x + 116, y);
+    context.lineTo(x + 142, y);
+    context.stroke();
+    context.setLineDash([]);
+    context.fillText("model", x + 148, y + 4);
   }
 
   function drawActivePoint(context, row, margin, plotWidth, plotHeight, maxTime, minTemp, maxTemp) {
@@ -492,14 +552,18 @@
 
   function getMinimumTemperature(rows) {
     return rows.reduce(function (minimum, row) {
-      return Math.min(minimum, row.temperature);
+      return Math.min(minimum, row.temperature, row.modelTemperature);
     }, Physics.waterTemp);
   }
 
   function getChartPoint(row, margin, plotWidth, plotHeight, maxTime, minTemp, maxTemp) {
+    return getChartPointForTemperature(row.time, row.temperature, margin, plotWidth, plotHeight, maxTime, minTemp, maxTemp);
+  }
+
+  function getChartPointForTemperature(time, temperature, margin, plotWidth, plotHeight, maxTime, minTemp, maxTemp) {
     return {
-      x: margin.left + (plotWidth * row.time / Math.max(1, maxTime)),
-      y: getY(row.temperature, margin, plotHeight, minTemp, maxTemp)
+      x: margin.left + (plotWidth * time / Math.max(1, maxTime)),
+      y: getY(temperature, margin, plotHeight, minTemp, maxTemp)
     };
   }
 
@@ -534,8 +598,8 @@
       return;
     }
 
-    if (state.status === "running") {
-      ui.message.textContent = "Simulation is already running. Use Pause first, or Reset to clear it.";
+    if (state.status === "running" || state.status === "paused") {
+      ui.message.textContent = "A trial is already active. Use Pause/Resume, or Reset before starting another trial.";
       return;
     }
 
@@ -612,6 +676,8 @@
     ui.trialCoefficient.textContent = "--";
     ui.reynoldsNumber.textContent = "--";
     ui.nusseltNumber.textContent = "--";
+    ui.biotNumber.textContent = "--";
+    ui.timeConstant.textContent = "--";
     ui.temperatureLabel.textContent = "T = 20.0 C";
     ui.ball.style.top = Physics.airTop + "px";
     ui.ball.style.left = "calc(50% - 28px)";
@@ -628,6 +694,8 @@
     ui.trialCoefficient.textContent = state.trial.coefficient.toFixed(2) + " W/m^2 C";
     ui.reynoldsNumber.textContent = representativeRow.reynolds.toFixed(0);
     ui.nusseltNumber.textContent = representativeRow.nusselt.toFixed(1);
+    ui.biotNumber.textContent = biotNumber(state.trial.coefficient).toFixed(4);
+    ui.timeConstant.textContent = timeConstant(state.trial.coefficient).toFixed(1) + " s";
   }
 
   function handleInputChange() {
@@ -648,6 +716,8 @@
     ui.trialCoefficient.textContent = "--";
     ui.reynoldsNumber.textContent = "--";
     ui.nusseltNumber.textContent = "--";
+    ui.biotNumber.textContent = "--";
+    ui.timeConstant.textContent = "--";
     ui.message.textContent = "Inputs changed. Press Start to generate a new randomized trial.";
     resetField();
     drawChart([], null);
@@ -673,7 +743,7 @@
       return;
     }
 
-    var csv = "Time (s),Measured ball temperature (C),Model ball temperature (C),Delta to water (C),Heat flux (W/m^2),Reynolds,Nusselt,Fluid speed (m/s),Ball X (%),Ball Y (px),Trial h (W/m^2 C),Local h (W/m^2 C)\n" +
+    var csv = "Time (s),Measured ball temperature (C),Model ball temperature (C),Delta to water (C),Heat flux (W/m^2),Reynolds,Nusselt,Fluid speed (m/s),Ball X (%),Ball Y (px),Trial h (W/m^2 C),Local h (W/m^2 C),Biot number,Time constant (s)\n" +
       state.rows.map(function (row) {
         return row.time.toFixed(0) + "," +
           row.temperature.toFixed(1) + "," +
@@ -686,7 +756,9 @@
           row.ballLeftPercent.toFixed(1) + "," +
           row.ballTop.toFixed(1) + "," +
           state.trial.coefficient.toFixed(2) + "," +
-          row.localCoefficient.toFixed(2);
+          row.localCoefficient.toFixed(2) + "," +
+          biotNumber(state.trial.coefficient).toFixed(4) + "," +
+          timeConstant(state.trial.coefficient).toFixed(1);
       }).join("\n");
     var blob = new Blob([csv], { type: "text/csv" });
     var url = URL.createObjectURL(blob);
@@ -699,10 +771,25 @@
     URL.revokeObjectURL(url);
   }
 
+  function exportChart() {
+    if (!state.rows.length) {
+      ui.message.textContent = "Press Start first so there is a chart to export.";
+      return;
+    }
+
+    var link = document.createElement("a");
+    link.href = ui.chart.toDataURL("image/png");
+    link.download = "temperature-curve.png";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   ui.form.addEventListener("submit", startSimulation);
   ui.pauseButton.addEventListener("click", pauseSimulation);
   ui.resetButton.addEventListener("click", resetAll);
   ui.downloadButton.addEventListener("click", downloadCsv);
+  ui.exportChartButton.addEventListener("click", exportChart);
   ui.temperatureInput.addEventListener("input", handleInputChange);
   ui.durationInput.addEventListener("input", handleInputChange);
   ui.speedInput.addEventListener("change", function () {

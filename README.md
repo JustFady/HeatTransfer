@@ -52,13 +52,15 @@ After GitHub Pages finishes, the app will be available as a public website.
 - Provides Start, Pause/Resume, Reset, and CSV export controls
 - Animates the ball entering the water and heating over time
 - Shows second-by-second calculated temperatures and delta to the water bath
-- Plots a temperature curve with a 100 C water reference line
+- Plots measured and model temperature curves with a 100 C water reference line
+- Exports the chart as a PNG
 - Displays the model equation and constants used by the calculation
+- Reports Biot number and thermal time constant for the active trial
 - Adds trial-to-trial variation in heat-transfer coefficient and measurement noise
 - Uses a fluctuating local heat-transfer coefficient during each trial
 - Moves the ball through a free-fall drop and water drift path during playback
 - Renders a pseudo CFD-style water field with thermal wake colors and velocity vectors
-- Reports heat flux, fluid speed, Reynolds number, and Nusselt number estimates
+- Reports heat flux, fluid speed, Reynolds number, Nusselt number, Biot number, and time constant estimates
 - Highlights the current result row during the simulation
 - Downloads results as `result.csv`
 - Requires no external dependencies

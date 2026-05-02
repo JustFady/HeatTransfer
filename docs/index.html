@@ -66,6 +66,8 @@
             <div><dt>Current trial coefficient</dt><dd id="trial-coefficient">--</dd></div>
             <div><dt>Reynolds estimate</dt><dd id="reynolds-number">--</dd></div>
             <div><dt>Nusselt estimate</dt><dd id="nusselt-number">--</dd></div>
+            <div><dt>Biot number</dt><dd id="biot-number">--</dd></div>
+            <div><dt>Time constant</dt><dd id="time-constant">--</dd></div>
             <div><dt>Surface area</dt><dd id="surface-area">0.001257 m^2</dd></div>
           </dl>
         </section>
@@ -96,8 +98,11 @@
 
     <section class="panel chart-panel" aria-labelledby="chart-title">
       <div class="section-header">
-        <h2 id="chart-title">Temperature Curve</h2>
-        <p>Ball temperature over simulated time.</p>
+        <div>
+          <h2 id="chart-title">Temperature Curve</h2>
+          <p>Measured trial data compared with the model prediction.</p>
+        </div>
+        <button type="button" id="export-chart-button" class="secondary compact">Export Chart</button>
       </div>
       <canvas id="chart" width="900" height="420" aria-label="Temperature curve chart"></canvas>
     </section>
