@@ -1,22 +1,29 @@
-﻿
-using System;
+using System.ComponentModel;
 
 namespace HeatTransfer
 {
     public class ResultItem
     {
-        public int time { get; set; }
-        public int ballTemp { get; set; }
+        [DisplayName("Time (s)")]
+        public int Time { get; private set; }
 
-        public ResultItem(int time, int ballTemp)
+        [DisplayName("Ball Temp (C)")]
+        public int BallTemperatureCelsius { get; private set; }
+
+        public ResultItem(int time, int ballTemperatureCelsius)
         {
-            this.ballTemp = ballTemp;
-            this.time = time;
+            Time = time;
+            BallTemperatureCelsius = ballTemperatureCelsius;
+        }
+
+        public string ToCsv()
+        {
+            return Time + "," + BallTemperatureCelsius;
         }
 
         public override string ToString()
         {
-            return this.time + "," + this.ballTemp;
+            return ToCsv();
         }
     }
 }

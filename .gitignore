@@ -1,0 +1,11 @@
+# Visual Studio / MSBuild output
+bin/
+obj/
+
+# User-specific IDE files
+.vs/
+*.user
+*.suo
+
+# Generated simulation export
+result.csv

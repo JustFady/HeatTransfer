@@ -1,89 +1,154 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+using System;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
+using System.Drawing.Drawing2D;
 using System.Windows.Forms;
 
 namespace HeatTransfer
 {
     public partial class Animation : UserControl
     {
+        private const int MinimumTemperature = -20;
+        private const int MaximumTemperature = 100;
+
+        private readonly Label lblTemp;
+        private Color ballColor = Color.FromArgb(45, 68, 89);
+
         public int ballPositionY { get; set; }
-        private Label lblTemp;
-        private int width = 480;
-        private int height = 580;
-        private int padding = 10;
-        private Color ballColor;
-        private int r = 0;
-        private int g = 0;
-        private int b = 0;
-
-
 
         public Animation()
         {
             InitializeComponent();
-            this.ballColor = Color.FromArgb(r, g, b);
-            this.lblTemp = new Label();
-            this.lblTemp.Location = new Point(260, 300);
-            this.lblTemp.Width = 180;
-            this.lblTemp.Font = new Font("Microsoft Sans Serif", 12);
-            this.lblTemp.BackColor = Color.LightBlue;
-            this.Controls.Add(lblTemp);
+            DoubleBuffered = true;
+
+            lblTemp = new Label();
+            lblTemp.AutoSize = false;
+            lblTemp.Location = new Point(290, 305);
+            lblTemp.Size = new Size(220, 34);
+            lblTemp.Font = new Font("Segoe UI", 12F, FontStyle.Bold);
+            lblTemp.ForeColor = Color.FromArgb(30, 43, 54);
+            lblTemp.BackColor = Color.FromArgb(218, 241, 251);
+            lblTemp.TextAlign = ContentAlignment.MiddleCenter;
+            lblTemp.Visible = false;
+            Controls.Add(lblTemp);
         }
 
-        public void displayTemp(String text)
+        public void displayTemp(string text)
         {
-            this.lblTemp.Text = text;
-            r += 5;
-            g += 2;
-            b += 1;
-            this.ballColor = Color.FromArgb(r, g, b);
-            this.Invalidate();
+            displayTemp(text, MinimumTemperature);
         }
-        
+
+        public void displayTemp(string text, int temperature)
+        {
+            lblTemp.Text = text;
+            lblTemp.Visible = !string.IsNullOrWhiteSpace(text);
+            ballColor = GetBallColor(temperature);
+            Invalidate();
+        }
+
+        public void ResetAnimation()
+        {
+            ballColor = Color.FromArgb(45, 68, 89);
+            displayTemp(string.Empty);
+        }
+
         private void Animation_Paint(object sender, PaintEventArgs e)
         {
-            Graphics g = e.Graphics;
-            DrawBeaker(g);
-            DrawWater(g);
-            DrawBall(g);
+            e.Graphics.SmoothingMode = SmoothingMode.AntiAlias;
+            DrawBeaker(e.Graphics);
+            DrawWater(e.Graphics);
+            DrawBall(e.Graphics);
         }
 
-        private void DrawBeaker(Graphics g)
+        private void DrawBeaker(Graphics graphics)
         {
-            Pen pen = new Pen(Color.Black);
-            //SolidBrush brush = new SolidBrush(Color.Transparent);
-            // left line
-            g.DrawLine(pen, padding, 200, padding, height - padding);
+            Rectangle beaker = GetBeakerBounds();
+            using (Pen glassPen = new Pen(Color.FromArgb(56, 67, 78), 3))
+            {
+                graphics.DrawLine(glassPen, beaker.Left, beaker.Top, beaker.Left, beaker.Bottom);
+                graphics.DrawLine(glassPen, beaker.Left, beaker.Bottom, beaker.Right, beaker.Bottom);
+                graphics.DrawLine(glassPen, beaker.Right, beaker.Top, beaker.Right, beaker.Bottom);
+            }
 
-            // bottom line
-            g.DrawLine(pen, padding, height - padding, width - padding - padding, height - padding);
-
-            // right line
-            g.DrawLine(pen, width - padding - padding, 200, width - padding - padding, height - padding);
-            //g.FillRectangle(brush, 0, 200, 580, 498);
+            using (Pen rimPen = new Pen(Color.FromArgb(120, 139, 153), 2))
+            {
+                graphics.DrawArc(rimPen, beaker.Left, beaker.Top - 18, beaker.Width, 36, 0, 180);
+            }
         }
 
-        private void DrawWater(Graphics g)
+        private void DrawWater(Graphics graphics)
         {
-            Pen pen = new Pen(Color.LightBlue);
-            SolidBrush brush = new SolidBrush(Color.LightBlue);
-            g.DrawRectangle(pen, padding + 10, 300, width - padding - padding - 30, height - padding - padding - 300);
-            g.FillRectangle(brush, padding + 10, 300, width - padding - padding - 30, height - padding - padding - 300);
+            Rectangle beaker = GetBeakerBounds();
+            Rectangle water = new Rectangle(beaker.Left + 12, beaker.Top + 120, beaker.Width - 24, beaker.Height - 132);
 
+            using (LinearGradientBrush waterBrush = new LinearGradientBrush(
+                water,
+                Color.FromArgb(184, 232, 249),
+                Color.FromArgb(108, 189, 222),
+                LinearGradientMode.Vertical))
+            using (Pen waterPen = new Pen(Color.FromArgb(84, 158, 191), 1))
+            {
+                graphics.FillRectangle(waterBrush, water);
+                graphics.DrawRectangle(waterPen, water);
+            }
+
+            using (Pen wavePen = new Pen(Color.FromArgb(80, 255, 255, 255), 2))
+            {
+                int waveY = water.Top + 12;
+                for (int x = water.Left + 12; x < water.Right - 24; x += 36)
+                {
+                    graphics.DrawArc(wavePen, x, waveY, 36, 14, 0, 180);
+                }
+            }
         }
 
-        private void DrawBall(Graphics g)
+        private void DrawBall(Graphics graphics)
         {
-            Pen pen = new Pen(Color.Black);
-            SolidBrush brush = new SolidBrush(this.ballColor);
-            g.DrawEllipse(pen, 200, this.ballPositionY, 50, 50);
-            g.FillEllipse(brush, 200, this.ballPositionY, 50, 50);
+            int ballSize = 54;
+            int x = GetBeakerBounds().Left + (GetBeakerBounds().Width - ballSize) / 2;
+            Rectangle ball = new Rectangle(x, ballPositionY, ballSize, ballSize);
+
+            using (GraphicsPath path = new GraphicsPath())
+            {
+                path.AddEllipse(ball);
+                using (PathGradientBrush brush = new PathGradientBrush(path))
+                {
+                    brush.CenterColor = ControlPaint.Light(ballColor);
+                    brush.SurroundColors = new[] { ballColor };
+                    brush.CenterPoint = new PointF(ball.Left + 18, ball.Top + 16);
+                    graphics.FillPath(brush, path);
+                }
+            }
+
+            using (Pen outlinePen = new Pen(Color.FromArgb(35, 42, 49), 2))
+            {
+                graphics.DrawEllipse(outlinePen, ball);
+            }
         }
-        
+
+        private Rectangle GetBeakerBounds()
+        {
+            int width = Math.Min(430, Math.Max(280, ClientSize.Width - 140));
+            int height = Math.Min(510, Math.Max(360, ClientSize.Height - 150));
+            int x = (ClientSize.Width - width) / 2;
+            int y = Math.Max(80, ClientSize.Height - height - 45);
+            return new Rectangle(x, y, width, height);
+        }
+
+        private static Color GetBallColor(int temperature)
+        {
+            double percent = (temperature - MinimumTemperature) /
+                (double)(MaximumTemperature - MinimumTemperature);
+            percent = Math.Max(0, Math.Min(1, percent));
+
+            int r = Interpolate(45, 224, percent);
+            int g = Interpolate(68, 82, percent);
+            int b = Interpolate(89, 54, percent);
+            return Color.FromArgb(r, g, b);
+        }
+
+        private static int Interpolate(int start, int end, double percent)
+        {
+            return (int)Math.Round(start + ((end - start) * percent));
+        }
     }
 }
