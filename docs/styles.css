@@ -289,7 +289,7 @@ dd,
   border: 2px solid #202a31;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #8ba0b0, #2d4459 68%);
-  transition: top 0.28s ease, background 0.28s ease;
+  transition: top 0.28s ease, left 0.28s ease, background 0.28s ease;
 }
 
 .temperature-label {

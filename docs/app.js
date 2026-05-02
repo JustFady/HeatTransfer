@@ -11,6 +11,7 @@
   var HEAT_TRANSFER_COEFFICIENT = 50.2;
   var BALL_AIR_TOP = 0;
   var BALL_WATER_TOP = 266;
+  var DROP_DURATION_SECONDS = 2;
 
   var form = document.getElementById("simulation-form");
   var resetButton = document.getElementById("reset-button");
@@ -27,41 +28,109 @@
   var resultsBody = document.getElementById("results-body");
   var chart = document.getElementById("chart");
   var surfaceArea = document.getElementById("surface-area");
+  var trialCoefficient = document.getElementById("trial-coefficient");
 
   var results = [];
   var activeTimer = null;
   var activeIndex = 0;
+  var activeTrialCoefficient = HEAT_TRANSFER_COEFFICIENT;
 
   function getSurfaceArea() {
     return 4 * Math.PI * Math.pow(BALL_RADIUS_METERS, 2);
   }
 
-  function getHeatTransferRate() {
-    return HEAT_TRANSFER_COEFFICIENT * getSurfaceArea() /
+  function getHeatTransferRate(coefficient) {
+    return coefficient * getSurfaceArea() /
       (STEEL_BALL_MASS * STEEL_SPECIFIC_HEAT);
   }
 
-  function calculateResults(initialTemperature, duration) {
-    var heatTransferRate = getHeatTransferRate();
+  function calculateResults(initialTemperature, duration, coefficient) {
+    var heatTransferRate = getHeatTransferRate(coefficient);
+    var phase = Math.random() * Math.PI * 2;
+    var drift = 50;
+    var driftVelocity = (Math.random() - 0.5) * 2.8;
     var rows = [];
 
     rows.push({
       time: 0,
       temperature: initialTemperature,
-      delta: WATER_TEMP - initialTemperature
+      delta: WATER_TEMP - initialTemperature,
+      modelTemperature: initialTemperature,
+      ballTop: BALL_AIR_TOP,
+      ballLeftPercent: 50
     });
 
     for (var second = 1; second <= duration; second += 1) {
+      var immersedTime = Math.max(0, second - DROP_DURATION_SECONDS);
       var calculatedTemperature = WATER_TEMP -
-        ((WATER_TEMP - initialTemperature) * Math.exp(-heatTransferRate * second));
+        ((WATER_TEMP - initialTemperature) * Math.exp(-heatTransferRate * immersedTime));
+      var measurementNoise = randomNormal() * 0.28;
+      var bathTurbulence = Math.sin(second * 0.45 + phase) * 0.18;
+      var measuredTemperature = clamp(calculatedTemperature + measurementNoise + bathTurbulence, MIN_TEMP, WATER_TEMP);
+      var motion = getBallMotion(second, duration, phase, drift, driftVelocity);
+
+      drift = motion.nextDrift;
+      driftVelocity = motion.nextVelocity;
+
       rows.push({
         time: second,
-        temperature: calculatedTemperature,
-        delta: WATER_TEMP - calculatedTemperature
+        temperature: measuredTemperature,
+        delta: WATER_TEMP - measuredTemperature,
+        modelTemperature: calculatedTemperature,
+        ballTop: motion.top,
+        ballLeftPercent: motion.leftPercent
       });
     }
 
     return rows;
+  }
+
+  function createTrialCoefficient() {
+    return HEAT_TRANSFER_COEFFICIENT * (0.92 + (Math.random() * 0.16));
+  }
+
+  function randomNormal() {
+    var u = 0;
+    var v = 0;
+    while (u === 0) {
+      u = Math.random();
+    }
+    while (v === 0) {
+      v = Math.random();
+    }
+    return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+  }
+
+  function getBallMotion(second, duration, phase, drift, velocity) {
+    if (second <= DROP_DURATION_SECONDS) {
+      var fallPercent = second / DROP_DURATION_SECONDS;
+      return {
+        top: BALL_AIR_TOP + ((BALL_WATER_TOP - BALL_AIR_TOP) * easeIn(fallPercent)),
+        leftPercent: 50 + Math.sin(second * 1.4 + phase) * 2,
+        nextDrift: drift,
+        nextVelocity: velocity
+      };
+    }
+
+    var nextVelocity = (velocity * 0.82) + ((Math.random() - 0.5) * 4.2);
+    var nextDrift = clamp(drift + nextVelocity, 22, 78);
+    var bob = Math.sin(second * 0.7 + phase) * 24;
+    var slowRise = Math.sin(second / Math.max(12, duration) * Math.PI * 2) * 10;
+
+    return {
+      top: BALL_WATER_TOP + bob + slowRise,
+      leftPercent: nextDrift,
+      nextDrift: nextDrift,
+      nextVelocity: nextVelocity
+    };
+  }
+
+  function easeIn(percent) {
+    return percent * percent;
+  }
+
+  function clamp(value, minimum, maximum) {
+    return Math.max(minimum, Math.min(maximum, value));
   }
 
   function validateInputs(initialTemperature, duration) {
@@ -245,11 +314,6 @@
     Array.prototype.forEach.call(resultsBody.querySelectorAll("tr"), function (row) {
       row.classList.toggle("active", Number(row.dataset.index) === index);
     });
-
-    var activeRow = resultsBody.querySelector('tr[data-index="' + index + '"]');
-    if (activeRow) {
-      activeRow.scrollIntoView({ block: "nearest" });
-    }
   }
 
   function updateFrame() {
@@ -261,12 +325,11 @@
     }
 
     var row = results[activeIndex];
-    var ballTop = activeIndex === 0 ? BALL_AIR_TOP : BALL_WATER_TOP;
-
     elapsed.textContent = row.time.toFixed(0) + " s";
     currentTemp.textContent = row.temperature.toFixed(1) + " C";
     temperatureLabel.textContent = "T = " + row.temperature.toFixed(1) + " C";
-    ball.style.top = ballTop + "px";
+    ball.style.top = row.ballTop.toFixed(1) + "px";
+    ball.style.left = "calc(" + row.ballLeftPercent.toFixed(1) + "% - 28px)";
     setBallTemperature(row.temperature);
     setActiveRow(activeIndex);
     drawChart(results, row);
@@ -285,7 +348,8 @@
       return;
     }
 
-    buildPreview(initialTemperature, duration);
+    activeTrialCoefficient = createTrialCoefficient();
+    buildPreview(initialTemperature, duration, activeTrialCoefficient);
     resetAnimationOnly();
     finalTemp.textContent = results[results.length - 1].temperature.toFixed(1) + " C";
     message.textContent = "Simulation running.";
@@ -302,6 +366,7 @@
     activeIndex = 0;
     elapsed.textContent = "0 s";
     ball.style.top = BALL_AIR_TOP + "px";
+    ball.style.left = "calc(50% - 28px)";
     setBallTemperature(Number(temperatureInput.value) || 20);
     Array.prototype.forEach.call(resultsBody.querySelectorAll("tr"), function (row) {
       row.classList.remove("active");
@@ -313,8 +378,9 @@
     durationInput.value = "60";
     speedInput.value = "100";
     message.textContent = "";
+    activeTrialCoefficient = HEAT_TRANSFER_COEFFICIENT;
     resetAnimationOnly();
-    buildPreview(20, 60);
+    buildPreview(20, 60, activeTrialCoefficient);
   }
 
   function downloadCsv() {
@@ -327,9 +393,15 @@
       return;
     }
 
-    var rows = calculateResults(initialTemperature, duration);
-    var csv = "Time (s),Ball temperature (C),Delta to water (C)\n" + rows.map(function (row) {
-      return row.time.toFixed(0) + "," + row.temperature.toFixed(1) + "," + row.delta.toFixed(1);
+    var rows = results.length ? results : calculateResults(initialTemperature, duration, activeTrialCoefficient);
+    var csv = "Time (s),Measured ball temperature (C),Model ball temperature (C),Delta to water (C),Ball X (%),Ball Y (px),Trial h (W/m^2 C)\n" + rows.map(function (row) {
+      return row.time.toFixed(0) + "," +
+        row.temperature.toFixed(1) + "," +
+        row.modelTemperature.toFixed(1) + "," +
+        row.delta.toFixed(1) + "," +
+        row.ballLeftPercent.toFixed(1) + "," +
+        row.ballTop.toFixed(1) + "," +
+        activeTrialCoefficient.toFixed(2);
     }).join("\n");
     var blob = new Blob([csv], { type: "text/csv" });
     var url = URL.createObjectURL(blob);
@@ -342,12 +414,13 @@
     URL.revokeObjectURL(url);
   }
 
-  function buildPreview(initialTemperature, duration) {
-    results = calculateResults(initialTemperature, duration);
+  function buildPreview(initialTemperature, duration, coefficient) {
+    results = calculateResults(initialTemperature, duration, coefficient);
     renderResults(results);
     currentTemp.textContent = initialTemperature.toFixed(1) + " C";
     finalTemp.textContent = results[results.length - 1].temperature.toFixed(1) + " C";
     temperatureLabel.textContent = "T = " + initialTemperature.toFixed(1) + " C";
+    trialCoefficient.textContent = coefficient.toFixed(2) + " W/m^2 C";
     setBallTemperature(initialTemperature);
     drawChart(results, results[0]);
     setActiveRow(0);
@@ -366,7 +439,8 @@
     }
 
     message.textContent = "";
-    buildPreview(initialTemperature, duration);
+    activeTrialCoefficient = HEAT_TRANSFER_COEFFICIENT;
+    buildPreview(initialTemperature, duration, activeTrialCoefficient);
   }
 
   form.addEventListener("submit", startSimulation);

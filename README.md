@@ -53,6 +53,8 @@ After GitHub Pages finishes, the app will be available as a public website.
 - Shows second-by-second calculated temperatures and delta to the water bath
 - Plots a temperature curve with a 100 C water reference line
 - Displays the model equation and constants used by the calculation
+- Adds trial-to-trial variation in heat-transfer coefficient and measurement noise
+- Moves the ball through a free-fall drop and water drift path during playback
 - Highlights the current result row during the simulation
 - Downloads results as `result.csv`
 - Requires no external dependencies
@@ -152,7 +154,7 @@ Where:
 - `m` is the steel ball mass, currently `0.0103 kg`
 - `c` is steel specific heat, currently `450 J/kg C`
 
-This is an educational simulation rather than a full computational fluid dynamics model.
+Each browser simulation run adds small random experimental variation so repeated trials are not identical. This is an educational simulation rather than a full computational fluid dynamics model.
 
 ## Project Structure
 
